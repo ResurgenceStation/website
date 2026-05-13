@@ -1,0 +1,11 @@
+brand: ReduxStation 13
+tagline: Space Station 13, refreshed
+domain: reduxstation.com
+byond_url: byond://reduxstation.com:2506
+github_repo: https://github.com/ResurgenceStation/website
+
+# Endpoint that returns server status as JSON in the tgstation13.org/serverinfo.json shape.
+# Leave blank until the endpoint exists; the page will show "server status unavailable" gracefully.
+status_endpoint: ""
+
+poll_interval_ms: 4000

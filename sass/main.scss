@@ -1,0 +1,4 @@
+// Webpack entrypoint. Imports parallax (background) first, then PDA theme (window),
+// so PDA rules win cascade ties for elements they share.
+@import "parallax";
+@import "pda";

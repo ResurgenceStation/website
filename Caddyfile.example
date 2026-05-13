@@ -1,0 +1,28 @@
+# Drop this block into the server's existing Caddyfile, then:
+#   sudo systemctl reload caddy
+#
+# Caddy handles TLS automatically via Let's Encrypt on first request.
+# Make sure DNS for reduxstation.com (A/AAAA) points at this server first.
+
+reduxstation.com, www.reduxstation.com {
+    root * /var/www/reduxstation
+    file_server
+    encode gzip zstd
+
+    # Optional: same-origin proxy for the status JSON, avoids CORS in the browser.
+    # Uncomment and set the upstream once an endpoint exists.
+    # handle /serverinfo.json {
+    #     reverse_proxy stats.reduxstation.com:80
+    # }
+
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        # Long cache for fingerprinted assets in /assets/, short cache for everything else.
+        ?Cache-Control "public, max-age=300"
+    }
+
+    @assets path /assets/*
+    header @assets Cache-Control "public, max-age=31536000, immutable"
+}

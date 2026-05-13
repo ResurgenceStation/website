@@ -1,0 +1,40 @@
+{
+  "name": "reduxstation-website",
+  "version": "0.1.0",
+  "description": "Landing page for ReduxStation 13 at reduxstation.com",
+  "private": true,
+  "license": "GPL-3.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@11ty/eleventy": "^3.0.0",
+    "autoprefixer": "^10.4.21",
+    "copy-webpack-plugin": "^13.0.0",
+    "cross-env": "^7.0.3",
+    "css-loader": "^7.1.2",
+    "css-minimizer-webpack-plugin": "^7.0.2",
+    "js-yaml": "^4.1.0",
+    "mini-css-extract-plugin": "^2.9.2",
+    "npm-run-all": "^4.1.5",
+    "postcss": "^8.5.3",
+    "postcss-loader": "^8.1.1",
+    "postcss-preset-env": "^10.1.5",
+    "rimraf": "^6.0.1",
+    "sass": "^1.86.0",
+    "sass-loader": "^16.0.5",
+    "terser-webpack-plugin": "^5.3.14",
+    "webpack": "^5.98.0",
+    "webpack-cli": "^6.0.1",
+    "webpack-manifest-plugin": "^5.0.1"
+  },
+  "scripts": {
+    "clean": "rimraf _site",
+    "start": "cross-env NODE_ENV=development npm-run-all -l clean --parallel start:*",
+    "start:webpack": "webpack --watch",
+    "start:eleventy": "eleventy --serve --port=8081",
+    "build": "cross-env NODE_ENV=production npm-run-all -l clean build:*",
+    "build:webpack": "webpack",
+    "build:eleventy": "eleventy"
+  }
+}

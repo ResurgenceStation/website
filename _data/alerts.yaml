@@ -1,0 +1,14 @@
+# Add dismissible banners here. Empty by default.
+# Example:
+# info:
+#   - message: "Welcome to <strong>ReduxStation 13</strong>! Pull up a chair."
+#     dismissible: true
+# warning:
+#   - message: "Server maintenance scheduled for 2026-05-15 02:00 UTC."
+#     dismissible: true
+# danger:
+#   - message: "Servers are currently offline for emergency repairs."
+#     dismissible: false
+info: []
+warning: []
+danger: []

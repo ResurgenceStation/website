@@ -1,0 +1,549 @@
+// Retro PDA theme, lifted from logs.owo.fm and adapted with wrapping fixes.
+// Win95 file-explorer aesthetic: gray window chrome, navy title bar, MS Sans Serif type.
+
+// ----- Color tokens -----
+$pda-bg: #bfbfbf;                 // window chrome (Win95 gray)
+$pda-border-light: #ffffff;       // top/left bevel
+$pda-border-dark: #404040;        // bottom/right bevel
+$pda-shadow: #000;
+$pda-title: #000080;              // navy title bar
+$pda-title-fg: #ffffff;
+$pda-text: #000;
+$pda-link: #000080;
+$pda-link-hover-bg: #000080;
+$pda-link-hover-fg: #ffffff;
+$pda-content-bg: #ffffff;
+$pda-muted: #808080;
+$pda-divider: #808080;
+
+// Log-line palette (kept verbatim from logs.owo.fm; reused for status pills)
+$log-attack: #c0392b;
+$log-say: #1b5e57;
+$log-dead: #6a1b9a;
+$log-ooc: #1565c0;
+$log-admin: #1565c0;
+$log-event: #b9770e;
+$log-chat: #00695c;
+$log-econ: #2e6b35;
+$log-system: #555;
+$log-censored: #aaaaaa;
+
+// ----- Base reset -----
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body { min-height: 100vh; }
+
+body {
+  font-family: "MS Sans Serif", "Microsoft Sans Serif", Tahoma, sans-serif;
+  font-size: 11px;
+  color: $pda-text;
+  // Note: NO solid background here. The parallax background fills the viewport.
+  // The original logs.owo.fm uses background: #008080 (teal); we drop it on purpose.
+  padding: 1.5rem 0;
+  position: relative;
+}
+
+// ----- Window chrome -----
+.window {
+  width: 100%;
+  // FIX 2: responsive max-width — the original logs.owo.fm fixes 960px and overflows on mobile.
+  max-width: min(960px, calc(100vw - 2rem));
+  margin: 0 auto;
+  background: $pda-bg;
+  border-top: 2px solid $pda-border-light;
+  border-left: 2px solid $pda-border-light;
+  border-right: 2px solid $pda-border-dark;
+  border-bottom: 2px solid $pda-border-dark;
+  box-shadow: 1px 1px 0 0 $pda-shadow, 4px 4px 18px rgba(0, 0, 0, 0.6);
+  padding: 2px;
+  position: relative;
+  z-index: 1;
+}
+
+// ----- Title bar -----
+.title-bar {
+  background: linear-gradient(to right, $pda-title 0%, #1084d0 100%);
+  color: $pda-title-fg;
+  padding: 3px 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: bold;
+  user-select: none;
+  gap: 8px;
+}
+
+.title-bar .path {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  // FIX 3: original uses `overflow: hidden` which silently truncates long titles.
+  // Replace with min-width: 0 so flex can shrink, plus ellipsis fallback for the inner text.
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+.title-bar .path .title-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.title-bar .title-icon { flex-shrink: 0; font-size: 12px; }
+
+.title-bar .controls {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.title-bar .controls .btn {
+  width: 18px;
+  height: 16px;
+  background: $pda-bg;
+  color: $pda-text;
+  border-top: 1px solid $pda-border-light;
+  border-left: 1px solid $pda-border-light;
+  border-right: 1px solid $pda-border-dark;
+  border-bottom: 1px solid $pda-border-dark;
+  font-family: "Marlett", "MS Sans Serif", monospace;
+  font-size: 9px;
+  line-height: 14px;
+  text-align: center;
+  cursor: default;
+}
+
+// ----- Menu bar -----
+.menu-bar {
+  background: $pda-bg;
+  padding: 2px 4px;
+  border-bottom: 1px solid $pda-divider;
+  font-size: 11px;
+  color: $pda-text;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  // FIX 4: flex children need min-width: 0 to shrink, plus allow wrapping on narrow screens.
+  flex-wrap: wrap;
+}
+
+.menu-bar .menu-items {
+  display: flex;
+  gap: 0.8rem;
+  min-width: 0;
+}
+
+.menu-bar .menu-item {
+  cursor: default;
+  user-select: none;
+  padding: 1px 4px;
+}
+
+.menu-bar .menu-item:hover { background: $pda-title; color: $pda-title-fg; }
+
+.menu-bar .summary {
+  color: $pda-muted;
+  font-style: italic;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// ----- Content area -----
+.content {
+  background: $pda-content-bg;
+  color: $pda-text;
+  border-top: 1px solid $pda-border-dark;
+  border-left: 1px solid $pda-border-dark;
+  border-right: 1px solid $pda-border-light;
+  border-bottom: 1px solid $pda-border-light;
+  margin: 4px;
+  padding: 12px;
+  font-family: "Lucida Console", "Courier New", Courier, monospace;
+  font-size: 12px;
+  line-height: 1.45;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.content p { margin: 0.5em 0; }
+.content p:first-child { margin-top: 0; }
+.content p:last-child { margin-bottom: 0; }
+
+.content code {
+  background: #efefef;
+  padding: 1px 4px;
+  border: 1px solid #cfcfcf;
+  font-family: inherit;
+  word-break: break-all;
+}
+
+// ----- Brand header -----
+.brand {
+  text-align: center;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed $pda-divider;
+}
+
+.brand-title {
+  font-family: "MS Sans Serif", Tahoma, sans-serif;
+  font-size: 28px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  color: $pda-title;
+  margin: 0;
+  word-break: break-word;
+}
+
+.brand-tagline {
+  font-family: "Lucida Console", "Courier New", Courier, monospace;
+  font-size: 12px;
+  color: $pda-muted;
+  margin-top: 4px;
+}
+
+// ----- Section titles -----
+.section-title {
+  font-family: "MS Sans Serif", Tahoma, sans-serif;
+  font-size: 12px;
+  font-weight: bold;
+  color: $pda-title;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  padding-bottom: 2px;
+  border-bottom: 1px solid $pda-divider;
+}
+
+// ----- Alerts -----
+.alerts { display: flex; flex-direction: column; gap: 6px; }
+
+.alert {
+  border-top: 1px solid $pda-border-light;
+  border-left: 1px solid $pda-border-light;
+  border-right: 1px solid $pda-border-dark;
+  border-bottom: 1px solid $pda-border-dark;
+  padding: 6px 10px;
+  font-family: "MS Sans Serif", Tahoma, sans-serif;
+  font-size: 11px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+
+  &.hidden { display: none; }
+}
+
+.alert-text {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow-wrap: break-word;
+}
+
+.alert-info    { background: #cce4ff; color: #003366; }
+.alert-warning { background: #fff2cc; color: #6b4f00; }
+.alert-danger  { background: #f8c8c8; color: $log-attack; }
+
+.alert .dismiss {
+  background: $pda-bg;
+  border-top: 1px solid $pda-border-light;
+  border-left: 1px solid $pda-border-light;
+  border-right: 1px solid $pda-border-dark;
+  border-bottom: 1px solid $pda-border-dark;
+  width: 18px;
+  height: 18px;
+  font-size: 11px;
+  cursor: pointer;
+  flex-shrink: 0;
+  font-family: inherit;
+}
+
+.alert .dismiss:active {
+  border-top: 1px solid $pda-border-dark;
+  border-left: 1px solid $pda-border-dark;
+  border-right: 1px solid $pda-border-light;
+  border-bottom: 1px solid $pda-border-light;
+}
+
+// ----- About section -----
+.text-box {
+  background: $pda-content-bg;
+  font-size: 12px;
+}
+
+// ----- PDA button (Win95 raised) -----
+.pda-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: $pda-bg;
+  color: $pda-text;
+  text-decoration: none;
+  border-top: 1px solid $pda-border-light;
+  border-left: 1px solid $pda-border-light;
+  border-right: 1px solid $pda-border-dark;
+  border-bottom: 1px solid $pda-border-dark;
+  padding: 6px 14px;
+  font-family: "MS Sans Serif", Tahoma, sans-serif;
+  font-size: 11px;
+  font-weight: normal;
+  cursor: pointer;
+  user-select: none;
+  min-width: 0;
+  overflow-wrap: break-word;
+  // FIX 4 application: flex tile children won't squeeze to overflow
+}
+
+.pda-button:hover { background: #cfcfcf; }
+
+.pda-button:active {
+  border-top: 1px solid $pda-border-dark;
+  border-left: 1px solid $pda-border-dark;
+  border-right: 1px solid $pda-border-light;
+  border-bottom: 1px solid $pda-border-light;
+  padding-top: 7px;
+  padding-bottom: 5px;
+}
+
+.button-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+// ----- Game banners (server status cards) -----
+.gamebanners {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+
+  @media (min-width: 640px) {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+}
+
+.gamebanner {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 10px;
+  background: $pda-content-bg;
+  color: $pda-text;
+  text-decoration: none;
+  border-top: 1px solid $pda-border-dark;
+  border-left: 1px solid $pda-border-dark;
+  border-right: 1px solid $pda-border-light;
+  border-bottom: 1px solid $pda-border-light;
+  font-family: "Lucida Console", "Courier New", Courier, monospace;
+  font-size: 12px;
+  min-width: 0;
+  // FIX 5 (long URLs/IDs)
+  overflow-wrap: break-word;
+  word-break: break-word;
+  transition: background-color 80ms linear;
+
+  &:hover { background: #fafafa; }
+
+  // status-driven accent strip on the left
+  border-left-width: 4px;
+  border-left-color: $log-system;
+
+  &.loading {
+    border-left-color: $log-system;
+    .version::after { content: ""; }
+  }
+  &.error    { border-left-color: $log-attack; }
+  &.lobby    { border-left-color: $log-event; }
+  &.underway { border-left-color: $log-say; }
+  &.end      { border-left-color: $log-dead; }
+
+  .banner-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+    font-family: "MS Sans Serif", Tahoma, sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+    color: $pda-title;
+    min-width: 0;
+  }
+
+  .banner-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .banner-address {
+    color: $pda-muted;
+    font-weight: normal;
+    font-family: "Lucida Console", Courier, monospace;
+    font-size: 11px;
+    // FIX 5: long byond:// addresses must break
+    word-break: break-all;
+    min-width: 0;
+  }
+
+  .banner-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .version { color: $log-say; }
+  .map { color: $log-event; }
+  .status { color: $pda-text; font-weight: bold; }
+  .revision {
+    color: $log-censored;
+    font-size: 10px;
+    // FIX 5
+    word-break: break-all;
+  }
+
+  &.error .version { color: $log-attack; }
+}
+
+// ----- Navigation pad -----
+.nav-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+}
+
+.nav-tile {
+  flex-direction: column;
+  padding: 14px 8px;
+  gap: 6px;
+  text-align: center;
+  font-family: "MS Sans Serif", Tahoma, sans-serif;
+}
+
+.nav-tile .nav-icon {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.nav-tile .nav-label {
+  font-size: 11px;
+  // FIX 4: long labels (if added later) must break gracefully
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+// ----- Status bar -----
+.status-bar {
+  background: $pda-bg;
+  padding: 4px 8px;
+  font-family: "MS Sans Serif", Tahoma, sans-serif;
+  font-size: 11px;
+  color: $pda-text;
+  border-top: 1px solid $pda-border-light;
+  margin-top: 2px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  // FIX 4
+  flex-wrap: wrap;
+}
+
+.status-bar .status-left,
+.status-bar .status-right {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: $log-system;
+  flex-shrink: 0;
+  display: inline-block;
+
+  &.online { background: $log-say; box-shadow: 0 0 4px $log-say; }
+  &.offline { background: $log-attack; }
+}
+
+// ----- <pre> wrapping fix (the big one from logs.owo.fm) -----
+// Original CSS: `white-space: pre` + `overflow-x: auto` → horizontal scroll on overflow.
+// Replacement: wrap, break long tokens, no horizontal scrollbar.
+pre {
+  font-family: "Lucida Console", "Courier New", Courier, monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  // intentionally NOT overflow-x: auto
+  background: $pda-content-bg;
+  color: $pda-text;
+  padding: 4px 6px;
+  margin: 0;
+}
+
+// ----- Log-line color coding (preserved verbatim for any future log embedding) -----
+.log-attack       { color: $log-attack; }
+.log-say          { color: $log-say; }
+.log-emote        { color: $log-say; font-style: italic; }
+.log-dead         { color: $log-dead; font-style: italic; }
+.log-ooc          { color: $log-ooc; }
+.log-admin        { color: $log-admin; font-weight: 600; }
+.log-adminprivate { color: #607d8b; font-style: italic; }
+.log-access       { color: #455a64; }
+.log-event        { color: $log-event; }
+.log-chat         { color: $log-chat; }
+.log-mechanism    { color: #6d4c41; }
+.log-econ         { color: $log-econ; }
+.log-system       { color: $log-system; }
+.log-censored     { color: $log-censored; font-style: italic; }
+
+// ----- Page footer (outside the window) -----
+.page-footer {
+  max-width: min(960px, calc(100vw - 2rem));
+  margin: 8px auto 24px;
+  font-family: "MS Sans Serif", Tahoma, sans-serif;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+  flex-wrap: wrap;
+}
+
+.page-footer a { color: rgba(255, 255, 255, 0.9); text-decoration: underline; }
+.page-footer a:hover { color: #ffd86b; }
+
+// ----- Narrow-viewport tightening -----
+@media (max-width: 480px) {
+  body { padding: 0.5rem 0; }
+  .window { max-width: calc(100vw - 0.5rem); }
+  .brand-title { font-size: 22px; }
+  .content { padding: 8px; gap: 12px; }
+  .nav-tile .nav-icon { font-size: 22px; }
+}
+
+// ----- Reduced motion preference -----
+@media (prefers-reduced-motion: reduce) {
+  .gamebanner { transition: none; }
+}
