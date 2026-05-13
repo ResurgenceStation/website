@@ -106,7 +106,7 @@
       <h2 class="section-title">SHORTCUTS</h2>
       <nav class="nav-grid" aria-label="Site links">
         {% for item in nav %}
-          <a class="nav-tile pda-button" href="{{ item.url }}"{% if item.url[0:4] == "http" %} target="_blank" rel="noreferrer noopener"{% endif %}>
+          <a class="nav-tile pda-button" href="{{ item.url }}"{% if item.url.startsWith("http") %} target="_blank" rel="noreferrer noopener"{% endif %}>
             <span class="nav-icon" aria-hidden="true">{{ item.icon }}</span>
             <span class="nav-label">{{ item.label }}</span>
           </a>
