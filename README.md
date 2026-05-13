@@ -13,7 +13,7 @@ Live at https://reduxstation.com. Single static page, Retro PDA window floating 
 
 ## Local development
 
-Requires **Node 18+** (the CI workflow uses Node 20). Older Node versions will fail at `npm run build` because Eleventy 3 and Webpack 5 dropped support for Node 12/14/16.
+Requires **Node 18+**. Eleventy 3 and Webpack 5 dropped Node 12/14/16.
 
 ```
 npm install
@@ -28,7 +28,7 @@ Opens at http://localhost:8081 with live reload on `.njk`, `.scss`, `.js`, and `
 npm run build
 ```
 
-Output goes to `_site/`. The CI workflow does this automatically; you only need to run it locally for testing the deploy.
+Output goes to `_site/`. That is what production should serve.
 
 ## Configuration
 
@@ -45,15 +45,7 @@ When the live status JSON endpoint exists, set `status_endpoint` in `_data/site.
 
 ## Deploy
 
-**Automatic**: every push to `master` triggers `.github/workflows/deploy.yml`, which builds and rsyncs `_site/` to the server. No manual step.
-
-**Manual** (for staging or hotfixes):
-
-```
-REDUX_HOST=deploy-user@reduxstation.com ./deploy.sh
-```
-
-See `Caddyfile.example` for the server-side block to add to Caddy.
+Handled by the ResurgenceStation master agent on the server. This repo holds source only.
 
 ## Layout
 
