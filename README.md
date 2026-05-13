@@ -13,7 +13,7 @@ Live at https://reduxstation.com. Single static page, Retro PDA window floating 
 
 ## Local development
 
-Requires **Node 18+** (the CI workflow uses Node 20). Older Node versions will fail at `npm run build` because Eleventy 3 and Webpack 5 dropped support for Node 12/14/16.
+Requires **Node 18+**. Older versions fail at `npm run build` because Eleventy 3 and Webpack 5 dropped Node 12/14/16.
 
 ```
 npm install
@@ -28,7 +28,7 @@ Opens at http://localhost:8081 with live reload on `.njk`, `.scss`, `.js`, and `
 npm run build
 ```
 
-Output goes to `_site/`. The CI workflow does this automatically; you only need to run it locally for testing the deploy.
+Output goes to `_site/`. On the server this happens automatically on every push (see Deploy section). You only need to run it locally for previewing.
 
 ## Configuration
 
@@ -45,15 +45,57 @@ When the live status JSON endpoint exists, set `status_endpoint` in `_data/site.
 
 ## Deploy
 
-**Automatic**: every push to `master` triggers `.github/workflows/deploy.yml`, which builds and rsyncs `_site/` to the server. No manual step.
+Self-hosted on a Linux server, webhook-driven. Same shape as the game's TGS auto-deploy: GitHub posts to the server on every push, the server pulls, rebuilds, and Caddy keeps serving. **No SSH keys are ever shared with GitHub.** The server holds the repo; GitHub never touches the server filesystem.
 
-**Manual** (for staging or hotfixes):
+### Flow
 
 ```
-REDUX_HOST=deploy-user@reduxstation.com ./deploy.sh
+git push origin master
+    -> GitHub webhook (HMAC-signed POST)
+       -> https://reduxstation.com/hooks/redeploy-website
+          -> Caddy proxies to localhost:9000
+             -> adnanh/webhook validates the HMAC + checks ref == refs/heads/master
+                -> runs scripts/redeploy.sh
+                   -> git pull + npm ci + npm run build
+                      -> _site/ updated in place; Caddy serves new files
 ```
 
-See `Caddyfile.example` for the server-side block to add to Caddy.
+Typical end-to-end latency: 20-60 seconds, mostly the build.
+
+### One-time server setup
+
+Run [scripts/install.sh](scripts/install.sh) as root on the server. It installs Node 20, the `webhook` binary, clones this repo to `/srv/reduxstation/website`, sets up a systemd service for the webhook listener, and runs the first build.
+
+```
+curl -fsSL https://raw.githubusercontent.com/ResurgenceStation/website/master/scripts/install.sh | sudo bash
+```
+
+Then:
+
+1. **Edit `/etc/reduxstation/webhook.conf`** and replace `REPLACE_WITH_LONG_RANDOM_SECRET` with the output of `openssl rand -hex 32`. Restart: `systemctl restart reduxstation-webhook`.
+2. **Add a GitHub webhook** at `Settings -> Webhooks -> Add webhook` on the repo:
+   - Payload URL: `https://reduxstation.com/hooks/redeploy-website`
+   - Content type: `application/json`
+   - Secret: the same value you put in `webhook.conf`
+   - Events: "Just the push event"
+3. **Append the Caddy block** from [Caddyfile.example](Caddyfile.example) to your Caddyfile (`/etc/caddy/Caddyfile`), then `systemctl reload caddy`.
+4. **Point DNS** for `reduxstation.com` (and `www.`) at the server. Caddy issues TLS automatically.
+
+That is the entire setup. From then on, every push to master rebuilds the site within a minute. Nothing to remember, nothing to run manually.
+
+### Watching deploys
+
+```
+tail -F /var/log/reduxstation-redeploy.log
+```
+
+### Manual redeploy
+
+If a deploy fails or you want to force a rebuild without pushing a commit:
+
+```
+sudo -u reduxweb /srv/reduxstation/website/scripts/redeploy.sh
+```
 
 ## Layout
 

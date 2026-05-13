@@ -1,0 +1,27 @@
+[
+  {
+    "id": "redeploy-website",
+    "execute-command": "/srv/reduxstation/website/scripts/redeploy.sh",
+    "command-working-directory": "/srv/reduxstation/website",
+    "include-command-output-in-response": false,
+    "response-message": "redeploy queued",
+    "trigger-rule": {
+      "and": [
+        {
+          "match": {
+            "type": "payload-hmac-sha256",
+            "secret": "REPLACE_WITH_LONG_RANDOM_SECRET",
+            "parameter": { "source": "header", "name": "X-Hub-Signature-256" }
+          }
+        },
+        {
+          "match": {
+            "type": "value",
+            "value": "refs/heads/master",
+            "parameter": { "source": "payload", "name": "ref" }
+          }
+        }
+      ]
+    }
+  }
+]

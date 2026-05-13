@@ -1,0 +1,19 @@
+# Default: let Git decide per-platform on text files.
+* text=auto
+
+# Shell scripts must be LF (they run on the Linux server).
+*.sh text eol=lf
+scripts/* text eol=lf
+
+# YAML and config files are read by tools that prefer LF.
+*.yaml text eol=lf
+*.yml text eol=lf
+Caddyfile* text eol=lf
+
+# Binary assets: never touch.
+*.png binary
+*.ico binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.svg text eol=lf

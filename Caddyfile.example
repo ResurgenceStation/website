@@ -1,25 +1,20 @@
-# Drop this block into the server's existing Caddyfile, then:
-#   sudo systemctl reload caddy
-#
-# Caddy handles TLS automatically via Let's Encrypt on first request.
-# Make sure DNS for reduxstation.com (A/AAAA) points at this server first.
-
 reduxstation.com, www.reduxstation.com {
-    root * /var/www/reduxstation
+    # Serve the built site. The redeploy script writes here in place.
+    root * /srv/reduxstation/website/_site
     file_server
     encode gzip zstd
 
-    # Optional: same-origin proxy for the status JSON, avoids CORS in the browser.
-    # Uncomment and set the upstream once an endpoint exists.
-    # handle /serverinfo.json {
-    #     reverse_proxy stats.reduxstation.com:80
-    # }
+    # Forward GitHub webhook traffic to the local webhook daemon.
+    # adnanh/webhook listens on 127.0.0.1:9000 with -urlprefix hooks, so the
+    # public path /hooks/redeploy-website maps to the "redeploy-website" hook id.
+    handle_path /hooks/* {
+        reverse_proxy 127.0.0.1:9000
+    }
 
     header {
         Strict-Transport-Security "max-age=31536000; includeSubDomains"
         X-Content-Type-Options "nosniff"
         Referrer-Policy "strict-origin-when-cross-origin"
-        # Long cache for fingerprinted assets in /assets/, short cache for everything else.
         ?Cache-Control "public, max-age=300"
     }
 
