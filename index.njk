@@ -6,7 +6,7 @@
   <title>{{ site.brand }} - {{ site.tagline }}</title>
   <meta name="description" content="{{ site.brand }} - {{ site.tagline }}. Join us on {{ site.byond_url }}.">
   <link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><rect width="16" height="16" fill="%23000080"/><text x="8" y="12" font-family="MS Sans Serif,Tahoma,sans-serif" font-size="11" font-weight="bold" fill="white" text-anchor="middle">R</text></svg>'>
-  <link rel="stylesheet" href="{% webpack 'main.css' %}">
+  <link rel="stylesheet" href="{% webpack 'main.css' %}?v={% buildId %}">
 </head>
 <body>
 
@@ -128,9 +128,9 @@
   <span>Built {% currentBuildDate %}</span>
 </footer>
 
-<script defer src="{% webpack 'js/main.js' %}"></script>
-<script defer src="{% webpack 'js/parallax.js' %}"></script>
-<script defer src="{% webpack 'js/gamebanners.js' %}"></script>
-<script defer src="{% webpack 'js/dismiss.js' %}"></script>
+<script defer src="{% webpack 'js/main.js' %}?v={% buildId %}"></script>
+<script defer src="{% webpack 'js/parallax.js' %}?v={% buildId %}"></script>
+<script defer src="{% webpack 'js/gamebanners.js' %}?v={% buildId %}"></script>
+<script defer src="{% webpack 'js/dismiss.js' %}?v={% buildId %}"></script>
 </body>
 </html>
