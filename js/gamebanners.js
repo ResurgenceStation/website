@@ -115,7 +115,26 @@
     return s;
   }
 
-  function renderBanner(server) {
+  // Pick the timestamp the data was generated at, not the timestamp the
+  // browser received the response. The serverinfo-updater stamps
+  // payload.last_update at the moment it polls DD; using that as the
+  // ticker anchor lets the displayed clock stay aligned with real time
+  // even though the JSON file is up to one poll-interval stale by the
+  // time the browser fetches it (3-4s offset otherwise).
+  //
+  // Falls back to Date.now() when last_update is missing or when the
+  // browser clock disagrees with the server clock by > 5 minutes
+  // (NTP outage, user clock wrong). Without the guard, a multi-minute
+  // skew would surface as a multi-minute jump in the displayed timer.
+  function pickBaselineTime(lastUpdateIso) {
+    if (!lastUpdateIso) return Date.now();
+    const t = new Date(lastUpdateIso).getTime();
+    if (!isFinite(t)) return Date.now();
+    if (Math.abs(Date.now() - t) > 5 * 60 * 1000) return Date.now();
+    return t;
+  }
+
+  function renderBanner(server, lastUpdateIso) {
     const banner = document.getElementById(server.identifier);
     if (!banner) return 0;
     if (!server.data || server.data.ERROR || !server.data.players || !server.data.version) {
@@ -128,7 +147,7 @@
     }
     const d = server.data;
     banner._statusData = d;
-    banner._fetchedAt = Date.now();
+    banner._fetchedAt = pickBaselineTime(lastUpdateIso);
     applyState(banner, d.gamestate);
     const v = banner.querySelector(".version");
     if (v) {
@@ -156,7 +175,7 @@
       if (!res.ok) throw new Error("HTTP " + res.status);
       const data = await res.json();
       let total = 0;
-      (data.servers || []).forEach((s) => { total += renderBanner(s); });
+      (data.servers || []).forEach((s) => { total += renderBanner(s, data.last_update); });
       if (playercountEl) playercountEl.textContent = total + " online";
       if (statusDot) {
         statusDot.classList.remove("offline");
