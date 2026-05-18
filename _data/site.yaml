@@ -5,7 +5,9 @@ byond_url: byond://reduxstation.com:1337
 github_repo: https://github.com/ReduxStation/website
 
 # Endpoint that returns server status as JSON in the tgstation13.org/serverinfo.json shape.
-# Leave blank until the endpoint exists; the page will show "server status unavailable" gracefully.
-status_endpoint: ""
+# Same-origin path — Caddy on the production host reverse-proxies this to
+# the internal serverinfo-updater (see infrastructure/docker/caddy/Caddyfile).
+# Set to "" to disable the poller and show "server status unavailable".
+status_endpoint: "/serverinfo.json"
 
 poll_interval_ms: 4000
