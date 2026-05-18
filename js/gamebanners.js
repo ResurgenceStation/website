@@ -19,6 +19,7 @@
     container.querySelectorAll(".gamebanner").forEach((banner) => {
       banner.classList.remove("loading", "lobby", "underway", "end");
       banner.classList.add("error");
+      banner._statusData = null;
       const v = banner.querySelector(".version");
       if (v) v.textContent = "server status unavailable";
       const m = banner.querySelector(".map");
@@ -39,6 +40,7 @@
     container.querySelectorAll(".gamebanner").forEach((banner) => {
       banner.classList.remove("loading", "lobby", "underway", "end");
       banner.classList.add("error");
+      banner._statusData = null;
       const v = banner.querySelector(".version");
       if (v) v.textContent = "connection error";
     });
@@ -98,17 +100,35 @@
     }
   }
 
+  // Build the contents of the .status line. extraSec is the number of
+  // seconds elapsed since the data was fetched; the local 1Hz ticker
+  // passes a growing value so round_duration reads as a live clock
+  // instead of stepping every server poll. shuttle_timer is left at
+  // the server value because we don't know whether it counts up or
+  // down for the current mode — it just resyncs on the next fetch.
+  function buildStatusString(d, extraSec) {
+    let s = String(d.players);
+    const cap = popcapString(d);
+    if (cap) s += "/" + cap;
+    if (Number(d.round_duration)) s += " " + secondsToTime(Number(d.round_duration) + extraSec);
+    if (d.shuttle_mode && Number(d.shuttle_timer)) s += " " + shuttleTime(d.shuttle_mode, Number(d.shuttle_timer));
+    return s;
+  }
+
   function renderBanner(server) {
     const banner = document.getElementById(server.identifier);
     if (!banner) return 0;
     if (!server.data || server.data.ERROR || !server.data.players || !server.data.version) {
       banner.classList.remove("loading", "lobby", "underway", "end");
       banner.classList.add("error");
+      banner._statusData = null;
       const v = banner.querySelector(".version");
       if (v) v.textContent = (server.data && server.data.errortext) || "connection error";
       return 0;
     }
     const d = server.data;
+    banner._statusData = d;
+    banner._fetchedAt = Date.now();
     applyState(banner, d.gamestate);
     const v = banner.querySelector(".version");
     if (v) {
@@ -120,14 +140,7 @@
     const m = banner.querySelector(".map");
     if (m) m.textContent = "Map: " + (d.map_name || "?");
     const status = banner.querySelector(".status");
-    if (status) {
-      let s = String(d.players);
-      const cap = popcapString(d);
-      if (cap) s += "/" + cap;
-      if (Number(d.round_duration)) s += " " + secondsToTime(Number(d.round_duration));
-      if (d.shuttle_mode && Number(d.shuttle_timer)) s += " " + shuttleTime(d.shuttle_mode, Number(d.shuttle_timer));
-      status.textContent = s;
-    }
+    if (status) status.textContent = buildStatusString(d, 0);
     const r = banner.querySelector(".revision");
     if (r && d.revision) r.textContent = "rev " + String(d.revision).substr(0, 7);
     return Number(d.players) || 0;
@@ -153,6 +166,21 @@
       setNetworkError();
     }
   }
+
+  // Local 1Hz ticker. Recomputes only the .status line so the round
+  // timer increments smoothly between server polls. No-op on banners
+  // whose last fetch errored (_statusData cleared) or hasn't returned
+  // yet, so the page never shows phantom data.
+  setInterval(() => {
+    container.querySelectorAll(".gamebanner").forEach((banner) => {
+      const d = banner._statusData;
+      if (!d) return;
+      const status = banner.querySelector(".status");
+      if (!status) return;
+      const extraSec = Math.floor((Date.now() - banner._fetchedAt) / 1000);
+      status.textContent = buildStatusString(d, extraSec);
+    });
+  }, 1000);
 
   poll();
   setInterval(poll, interval);
