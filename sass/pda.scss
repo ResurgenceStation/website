@@ -290,7 +290,7 @@ body {
   border-left: 1px solid $pda-border-light;
   border-right: 1px solid $pda-border-dark;
   border-bottom: 1px solid $pda-border-dark;
-  padding: 6px 14px;
+  padding: 3px 12px;
   font-family: "MS Sans Serif", Tahoma, sans-serif;
   font-size: 11px;
   font-weight: normal;
@@ -308,8 +308,8 @@ body {
   border-left: 1px solid $pda-border-dark;
   border-right: 1px solid $pda-border-light;
   border-bottom: 1px solid $pda-border-light;
-  padding-top: 7px;
-  padding-bottom: 5px;
+  padding-top: 4px;
+  padding-bottom: 2px;
 }
 
 .button-row {
@@ -422,15 +422,18 @@ body {
 
 .nav-tile {
   flex-direction: column;
-  padding: 14px 8px;
+  padding: 10px 8px;
   gap: 6px;
   text-align: center;
   font-family: "MS Sans Serif", Tahoma, sans-serif;
 }
 
 .nav-tile .nav-icon {
-  font-size: 28px;
-  line-height: 1;
+  width: 32px;
+  height: 32px;
+  // Win95 icons are pixel art — keep them crisp at integer scale.
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
 }
 
 .nav-tile .nav-label {
@@ -540,7 +543,7 @@ pre {
   .window { max-width: calc(100vw - 0.5rem); }
   .brand-title { font-size: 22px; }
   .content { padding: 8px; gap: 12px; }
-  .nav-tile .nav-icon { font-size: 22px; }
+  .nav-tile .nav-icon { width: 24px; height: 24px; }
 }
 
 // ----- Reduced motion preference -----

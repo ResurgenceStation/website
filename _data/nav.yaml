@@ -1,21 +1,21 @@
 - label: Home
   url: /
-  icon: "\U0001F3E0"
+  icon: home.png
 - label: Discord
   url: https://discord.gg/wUqCpBH7Ua
-  icon: "\U0001F4AC"
+  icon: discord.png
 - label: Wiki
   url: https://wiki.reduxstation.com
-  icon: "\U0001F4D6"
+  icon: wiki.png
 - label: GitHub
   url: https://github.com/ReduxStation/ReduxStation
-  icon: "⚡"
-- label: Statbus
+  icon: github.png
+- label: StatBus
   url: https://stats.reduxstation.com
-  icon: "\U0001F4CA"
+  icon: statbus.png
 - label: Logs
   url: https://logs.reduxstation.com
-  icon: "\U0001F4DC"
-- label: Webmap
+  icon: logs.png
+- label: WebMap
   url: https://map.reduxstation.com
-  icon: "\U0001F5FA"
+  icon: webmap.png

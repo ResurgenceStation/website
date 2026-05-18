@@ -73,11 +73,11 @@
       <h2 class="section-title">README.txt</h2>
       <div class="text-box">
         <p><strong>Space Station 13</strong> is a paranoia-laden round-based roleplaying game set on a metal death trap masquerading as a space station. {{ site.brand }} is a fork focused on a refreshed experience.</p>
+        <p>{{ site.brand }} is a hash on the classic LRP SS13 experience that was once comandeered by HippieStation. {{ site.brand }} has an older codebase from 2020 and focuses more on preserving the older editions of SS13.</p>
         <p>To join you need the BYOND client. Download it, then connect to <code>{{ site.byond_url }}</code>.</p>
         <div class="button-row">
           <a class="pda-button" href="https://www.byond.com/download/" target="_blank" rel="noreferrer noopener">Get BYOND</a>
           <a class="pda-button" href="{{ site.byond_url }}">Join Server</a>
-          <a class="pda-button" href="https://github.com/tgstation/tgstation/blob/master/.github/guides/RUNNING_A_SERVER.md" target="_blank" rel="noreferrer noopener">Host a Server</a>
         </div>
       </div>
     </section>
@@ -107,7 +107,7 @@
       <nav class="nav-grid" aria-label="Site links">
         {% for item in nav %}
           <a class="nav-tile pda-button" href="{{ item.url }}"{% if item.url.startsWith("http") %} target="_blank" rel="noreferrer noopener"{% endif %}>
-            <span class="nav-icon" aria-hidden="true">{{ item.icon }}</span>
+            <img class="nav-icon" src="/assets/img/icons/{{ item.icon }}?v={% buildId %}" alt="" aria-hidden="true" width="16" height="16">
             <span class="nav-label">{{ item.label }}</span>
           </a>
         {% endfor %}
