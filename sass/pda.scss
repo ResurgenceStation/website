@@ -91,7 +91,13 @@ body {
   min-width: 0;
 }
 
-.title-bar .title-icon { flex-shrink: 0; font-size: 12px; }
+.title-bar .title-icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
 
 .title-bar .controls {
   display: flex;
