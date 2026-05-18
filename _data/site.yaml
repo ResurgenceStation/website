@@ -10,4 +10,4 @@ github_repo: https://github.com/ReduxStation/website
 # Set to "" to disable the poller and show "server status unavailable".
 status_endpoint: "/serverinfo.json"
 
-poll_interval_ms: 4000
+poll_interval_ms: 1000

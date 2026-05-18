@@ -16,6 +16,17 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addNunjucksAsyncShortcode("webpack", shortcodes.webpack);
   eleventyConfig.addShortcode("currentBuildDate", () => new Date().toISOString());
 
+  // Cache-bust query string baked at build time. Webpack's manifest plugin
+  // does not add [contenthash] to the copied JS bundles (they go through
+  // CopyWebpackPlugin, not webpack's regular pipeline), so the
+  // /assets/js/*.js URLs are stable. Caddy serves /assets/* with
+  // Cache-Control: max-age=31536000, so without this query string a
+  // browser that fetched the JS once would never refetch after a content
+  // change. Pinning to one buildId per `npm run build` flushes caches
+  // exactly when assets actually change.
+  const buildId = Date.now().toString(36);
+  eleventyConfig.addShortcode("buildId", () => buildId);
+
   eleventyConfig.addWatchTarget(path.join(__dirname, "_site/assets/manifest.json"));
   eleventyConfig.addWatchTarget(path.join(__dirname, "_data/*.yaml"));
 
